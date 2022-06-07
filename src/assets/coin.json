@@ -1,0 +1,195 @@
+{
+	"frames": {
+		"Slice 1.png": {
+			"frame": {
+				"x": 1,
+				"y": 1,
+				"w": 99,
+				"h": 95
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 99,
+				"h": 95
+			},
+			"sourceSize": {
+				"w": 99,
+				"h": 95
+			}
+		},
+		"Slice 2.png": {
+			"frame": {
+				"x": 102,
+				"y": 1,
+				"w": 99,
+				"h": 95
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 99,
+				"h": 95
+			},
+			"sourceSize": {
+				"w": 99,
+				"h": 95
+			}
+		},
+		"Slice 3.png": {
+			"frame": {
+				"x": 1,
+				"y": 98,
+				"w": 99,
+				"h": 95
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 99,
+				"h": 95
+			},
+			"sourceSize": {
+				"w": 99,
+				"h": 95
+			}
+		},
+		"Slice 4.png": {
+			"frame": {
+				"x": 102,
+				"y": 98,
+				"w": 99,
+				"h": 95
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 99,
+				"h": 95
+			},
+			"sourceSize": {
+				"w": 99,
+				"h": 95
+			}
+		},
+		"Slice 5.png": {
+			"frame": {
+				"x": 1,
+				"y": 195,
+				"w": 99,
+				"h": 95
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 99,
+				"h": 95
+			},
+			"sourceSize": {
+				"w": 99,
+				"h": 95
+			}
+		},
+		"Slice 6.png": {
+			"frame": {
+				"x": 102,
+				"y": 195,
+				"w": 99,
+				"h": 95
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 99,
+				"h": 95
+			},
+			"sourceSize": {
+				"w": 99,
+				"h": 95
+			}
+		},
+		"Slice 7.png": {
+			"frame": {
+				"x": 203,
+				"y": 1,
+				"w": 99,
+				"h": 95
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 99,
+				"h": 95
+			},
+			"sourceSize": {
+				"w": 99,
+				"h": 95
+			}
+		},
+		"Slice 8.png": {
+			"frame": {
+				"x": 203,
+				"y": 98,
+				"w": 99,
+				"h": 95
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 99,
+				"h": 95
+			},
+			"sourceSize": {
+				"w": 99,
+				"h": 95
+			}
+		},
+		"Slice 9.png": {
+			"frame": {
+				"x": 203,
+				"y": 195,
+				"w": 99,
+				"h": 95
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 99,
+				"h": 95
+			},
+			"sourceSize": {
+				"w": 99,
+				"h": 95
+			}
+		}
+	},
+	"meta": {
+		"app": "http://www.codeandweb.com/texturepacker",
+		"version": "1.0",
+		"image": "coin.png",
+		"format": "RGBA8888",
+		"size": {
+			"w": 303,
+			"h": 291
+		},
+		"scale": "1"
+	}
+}
