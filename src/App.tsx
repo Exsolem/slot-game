@@ -44,7 +44,6 @@ function App() {
       app.start();
     }
     window.addEventListener('resize', () => {
-      const body = document.querySelector('body');
       app.drawBackground();
     })
   }, [])

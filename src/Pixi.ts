@@ -36,7 +36,11 @@ export class MyApp extends PIXI.Application {
     backgroundTime: number;
     background: PIXI.Sprite;
     backgroundPortr: PIXI.Sprite;
-    bears: PIXI.Sprite[]
+    bears: PIXI.Sprite[];
+    fruits: MyModel[];
+    coins: PIXI.Sprite[];
+    mainScale: number;
+    container: PIXI.Container;
     constructor() {
         super({
             resizeTo: window,
@@ -49,6 +53,10 @@ export class MyApp extends PIXI.Application {
         this.background = new PIXI.Sprite();
         this.backgroundPortr = new PIXI.Sprite();
         this.bears = [];
+        this.fruits = [];
+        this.coins = [];
+        this.container = new PIXI.Container();
+        this.mainScale = 0.3;
         this.loader
             .add(fruits.wild, wildUrl)
             .add(fruits.strawberry, strawberryUrl)
@@ -63,10 +71,15 @@ export class MyApp extends PIXI.Application {
             .add('coin', coinUrl)
             .load((_, resources) => {
                 this.onLoadHandler(resources);
+                this.addFruitsAnimation();
             })
     }
     clearScene() {
         this.stage.removeChildren()
+        this.container = new PIXI.Container();
+        this.fruits = [];
+        this.coins = [];
+        console.log(this.ticker);
     }
     onLoadHandler(resources: PIXI.utils.Dict<PIXI.LoaderResource>) {
         this.createBackground(resources);
@@ -75,7 +88,7 @@ export class MyApp extends PIXI.Application {
         this.drawBears();
         this.addBackgroundAnimation();
     }
-    createBackground(resources: PIXI.utils.Dict<PIXI.LoaderResource>){
+    createBackground(resources: PIXI.utils.Dict<PIXI.LoaderResource>) {
         this.isLoad = true
         this.background = new PIXI.Sprite(resources.bg.texture);
         this.backgroundPortr = new PIXI.Sprite(resources.bgPortrait.texture);
@@ -88,12 +101,12 @@ export class MyApp extends PIXI.Application {
         if (window.innerHeight > window.innerWidth) {
             this.background.texture = this.loader.resources.bgPortrait.texture as PIXI.Texture<PIXI.Resource>;
             this.bears.forEach((bear, idx) => {
-                bear.y = this.renderer.height / 2.5 + 2 * idx + 30;
+                bear.y = window.innerHeight / 2.5 + 2 * idx + 10;
             })
         } else {
             this.background.texture = this.loader.resources.bg.texture as PIXI.Texture<PIXI.Resource>;
             this.bears.forEach((bear, idx) => {
-                bear.y = this.renderer.height / 2 + idx + 20;
+                bear.y = window.innerHeight / 2 + idx;
             })
         }
     }
@@ -122,7 +135,7 @@ export class MyApp extends PIXI.Application {
             this.stage.addChild(bear)
         });
     }
-    addBackgroundAnimation(){
+    addBackgroundAnimation() {
         this.ticker.add((delta) => {
             this.bears.forEach((bear, idx) => {
                 if (bear.x < -50) {
@@ -135,45 +148,32 @@ export class MyApp extends PIXI.Application {
             }
         })
     }
-    setArr(arr: { arr: number[], matches: number[][] }) {
-        this.arr = arr.arr;
-        this.matches = arr.matches;
+    drawContainer(){
+        
+        this.addFruits();
+        this.container.x = this.renderer.width / 2;
+        this.container.y = this.renderer.height / 2;
+        this.container.pivot.x = this.container.width / 2 + 20;
+        this.container.pivot.y = this.container.height / 2;
+
+        this.container.scale.set(this.renderer.height > this.renderer.width ? 1 : 1.3);
+        this.container.sortableChildren = true;
+        this.container.filters = [new PIXI.filters.BlurFilter(40, 20)]
+
+        this.stage.addChild(this.container);
+        //this.addFruitsAnimation();
     }
-    startup() {
-        this.clearScene();
-
-        if (this.background) {
-            this.stage.addChild(this.background);
-        }
-        this.drawBears();
-        store.dispatch(setDoneFalse())
-
-        const mainScale = 0.3;
-
-        const resources = this.loader.resources;
-        const matches = this.matches;
-
-        const coinSheet = new PIXI.Spritesheet(resources.coin.texture as PIXI.Texture, coinJSON);
-
-        coinSheet.parse(() => { });
-
-        const container = new PIXI.Container();
-
-        container.x = this.renderer.width / 2;
-        container.y = this.renderer.height / 2;
-
+    addFruits() {
         const fruitsKeys = Object.keys(fruits);
-        const coins: PIXI.Sprite[] = [];
-
-        const slotFruits: MyModel[] = this.arr.map((fruitType, idx) => {
+        this.arr.forEach((fruitType, idx) => {
             //const bunny = new PIXI.Spritesheet(app.loader.resources.bear.texture, './assets/bear-spritesheet.json')
             //const some = Object.keys(pixi.textures).map( item => pixi.textures[item])
             //const bunny = new PIXI.AnimatedSprite(some);
             //bunny.play();
 
-            const fruit: MyModel = new MyModel(30, mainScale, this.loader.resources[fruitsKeys[fruitType]].texture);
+            const fruit: MyModel = new MyModel(30, this.mainScale, this.loader.resources[fruitsKeys[fruitType]].texture);
             fruit.anchor.set(0.5);
-            fruit.scale.set(mainScale);
+            fruit.scale.set(this.mainScale);
             const col = Math.floor(idx / 5)
             const row = Math.floor(idx % 5)
 
@@ -182,43 +182,35 @@ export class MyApp extends PIXI.Application {
             fruit.startX = fruit.x;
             fruit.startY = fruit.y;
             fruit.zIndex = 10;
-            container.addChild(fruit)
+            this.container.addChild(fruit)
+            this.fruits.push(fruit);
+            this.addCoins(idx, fruit);
 
-            if (matches.flat().includes(idx)) {
-                const coinTexture = Object.keys(coinSheet.textures).map(item => coinSheet.textures[item])
-                const coin = new PIXI.AnimatedSprite(coinTexture);
-
-                coin.zIndex = 100;
-                coin.play();
-                coin.animationSpeed = 0.4;
-                coin.scale.set(0.3);
-                coin.x = fruit.x - 10;
-                coin.y = fruit.y - 10;
-                coin.alpha = 0;
-                container.addChild(coin);
-                coins.push(coin);
-            }
-
-            return fruit;
         });
-        
-        slotFruits.forEach(fruit => {
-            fruit.containerHeight = container.height + 30;
-        })
+    }
+    addCoins(idx: number, fruit: MyModel) {
+        const coinSheet = new PIXI.Spritesheet(this.loader.resources.coin.texture as PIXI.Texture, coinJSON);
+        coinSheet.parse(() => { });
+        if (this.matches.flat().includes(idx)) {
+            const coinTexture = Object.keys(coinSheet.textures).map(item => coinSheet.textures[item])
+            const coin = new PIXI.AnimatedSprite(coinTexture);
 
-        container.pivot.x = container.width / 2 + 20;
-        container.pivot.y = container.height / 2;
-
-        container.scale.set(this.renderer.height > this.renderer.width ? 1 : 1.3);
-        container.sortableChildren = true;
-        container.filters = [new PIXI.filters.BlurFilter(40, 20)]
-
-        this.stage.addChild(container);
-
+            coin.zIndex = 100;
+            coin.play();
+            coin.animationSpeed = 0.4;
+            coin.scale.set(0.3);
+            coin.x = fruit.x - 10;
+            coin.y = fruit.y - 10;
+            coin.alpha = 0;
+            this.container.addChild(coin);
+            this.coins.push(coin);
+        }
+    }
+    addFruitsAnimation(){
         let filter = 20;
 
         const animation = (delta: number) => {
-            slotFruits.forEach((fruit, idx) => {
+            this.fruits.forEach((fruit, idx) => {
                 if (fruit.animationStage === 1) {
                     stage1(fruit, delta);
                 }
@@ -236,7 +228,7 @@ export class MyApp extends PIXI.Application {
         const coinsAnimation = (delta: number) => {
             const isPortrait = this.renderer.width < this.renderer.height;
 
-            coins.forEach(coin => {
+            this.coins.forEach(coin => {
                 const x = isPortrait ? coin.x : -70;
                 if (coin.x > x) {
                     coin.x -= 0.2 * delta;
@@ -266,7 +258,7 @@ export class MyApp extends PIXI.Application {
                 fruit.y = -10;
                 fruit.spins += 1;
                 if (filter >= 0) {
-                    container.filters = [new PIXI.filters.BlurFilter(filter - fruit.spins * 4, 20)]
+                    this.container.filters = [new PIXI.filters.BlurFilter(filter - fruit.spins * 4, 20)]
                 }
             }
             if (fruit.spins === 5) {
@@ -274,7 +266,7 @@ export class MyApp extends PIXI.Application {
                     fruit.y = fruit.startY;
                     fruit.startSpeed = 0;
                     fruit.animationStage = 3;
-                    if (idx === slotFruits.length - 1) {
+                    if (idx === this.fruits.length - 1) {
                         store.dispatch(setDoneTrue())
                     }
                 }
@@ -288,7 +280,7 @@ export class MyApp extends PIXI.Application {
         const stage3 = (fruit: MyModel, idx: number, delta: number) => {
             if (fruit.y === fruit.startY) {
                 coinsAnimation(delta)
-                if (matches.flat().includes(idx)) {
+                if (this.matches.flat().includes(idx)) {
 
                     //const wave = new ShockwaveFilter([0.5, 0.5],{speed: 10, radius: 1}, this.backgroundTime)
                     if (!fruit.filters) {
@@ -317,6 +309,29 @@ export class MyApp extends PIXI.Application {
                 fruit.filters = []
             }
         }
+    }
+    setArr(arr: { arr: number[], matches: number[][] }) {
+        this.arr = arr.arr;
+        this.matches = arr.matches;
+    }
+    startup() {
+        this.clearScene();
+
+        if (this.background) {
+            this.stage.addChild(this.background);
+        }
+        this.drawBears();
+        store.dispatch(setDoneFalse())
+
+
+        this.drawContainer();
+
+
+        this.fruits.forEach(fruit => {
+            fruit.containerHeight = this.container.height + 30;
+        })
+
+
 
     }
 }
@@ -350,3 +365,55 @@ class MyModel extends PIXI.Sprite {
 
     }
 }
+
+
+
+
+
+
+        // const slotFruits: MyModel[] = this.arr.map((fruitType, idx) => {
+        //     //const bunny = new PIXI.Spritesheet(app.loader.resources.bear.texture, './assets/bear-spritesheet.json')
+        //     //const some = Object.keys(pixi.textures).map( item => pixi.textures[item])
+        //     //const bunny = new PIXI.AnimatedSprite(some);
+        //     //bunny.play();
+
+        //     const fruit: MyModel = new MyModel(30, mainScale, this.loader.resources[fruitsKeys[fruitType]].texture);
+        //     fruit.anchor.set(0.5);
+        //     fruit.scale.set(mainScale);
+        //     const col = Math.floor(idx / 5)
+        //     const row = Math.floor(idx % 5)
+
+        //     fruit.x = row * 80 + 55;
+        //     fruit.y = col * 50 + 30;
+        //     fruit.startX = fruit.x;
+        //     fruit.startY = fruit.y;
+        //     fruit.zIndex = 10;
+        //     container.addChild(fruit)
+
+        //     if (matches.flat().includes(idx)) {
+        //         const coinTexture = Object.keys(coinSheet.textures).map(item => coinSheet.textures[item])
+        //         const coin = new PIXI.AnimatedSprite(coinTexture);
+
+        //         coin.zIndex = 100;
+        //         coin.play();
+        //         coin.animationSpeed = 0.4;
+        //         coin.scale.set(0.3);
+        //         coin.x = fruit.x - 10;
+        //         coin.y = fruit.y - 10;
+        //         coin.alpha = 0;
+        //         container.addChild(coin);
+        //         coins.push(coin);
+        //     }
+
+        //     return fruit;
+        // });
+
+
+        // container.pivot.x = container.width / 2 + 20;
+        // container.pivot.y = container.height / 2;
+
+        // container.scale.set(this.renderer.height > this.renderer.width ? 1 : 1.3);
+        // container.sortableChildren = true;
+        // container.filters = [new PIXI.filters.BlurFilter(40, 20)]
+
+        // this.stage.addChild(container);

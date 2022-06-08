@@ -57,16 +57,16 @@ button[disabled]{
 }
 
 .win{
-  top: 0;
-  right: 20%;
+  top: 5%;
+  right: 5%;
   position: absolute;
   color: #3a3a3a;
   transform: scale(1);
   transition: transform 500ms ease, color 500ms ease;
 }
 .balance{
-  top: 0;
-  left: 20%;
+  top: 5%;
+  left: 5%;
   color: #3a3a3a;
   transform: scale(1);
   transition: transform 500ms ease, color 500ms ease;
