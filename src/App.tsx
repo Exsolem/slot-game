@@ -46,6 +46,11 @@ function App() {
     window.addEventListener('resize', () => {
       app.drawBackground();
     })
+    window.ondeviceorientation = () => {
+      app.drawBackground();
+    }
+
+  
   }, [])
   useEffect(() => {
     setSumma(prev => prev += win);
@@ -86,7 +91,16 @@ function App() {
         <div className={'balance'} ref={sumRef}>
           <span>Balance:${summa}</span>
         </div>
-        <button onClick={spin} disabled={btnDis}>Spin</button>
+        <button 
+          onClick={spin} 
+          disabled={btnDis}
+        >
+        {
+          btnDis ? 
+          <span className='spinner'/> :
+          'Spin'
+        }
+        </button>
         <div className={'win'} ref={winRef}>
           <span>Win:{win}</span>
         </div>

@@ -71,7 +71,6 @@ export class MyApp extends PIXI.Application {
             .add('coin', coinUrl)
             .load((_, resources) => {
                 this.onLoadHandler(resources);
-                this.addFruitsAnimation();
             })
     }
     clearScene() {
@@ -79,7 +78,6 @@ export class MyApp extends PIXI.Application {
         this.container = new PIXI.Container();
         this.fruits = [];
         this.coins = [];
-        console.log(this.ticker);
     }
     onLoadHandler(resources: PIXI.utils.Dict<PIXI.LoaderResource>) {
         this.createBackground(resources);
@@ -87,17 +85,18 @@ export class MyApp extends PIXI.Application {
         this.createBears(resources)
         this.drawBears();
         this.addBackgroundAnimation();
+        this.addFruitsAnimation();
     }
     createBackground(resources: PIXI.utils.Dict<PIXI.LoaderResource>) {
         this.isLoad = true
         this.background = new PIXI.Sprite(resources.bg.texture);
         this.backgroundPortr = new PIXI.Sprite(resources.bgPortrait.texture);
         this.stage.addChild(this.background);
-        this.background.filters = [new GodrayFilter({ alpha: 0.5 })]
+        this.background.filters = [new GodrayFilter({ alpha: 0.7 })]
     }
     drawBackground() {
         this.background.width = window.innerWidth;
-        this.background.height = window.innerHeight;
+        this.background.height = window.innerHeight - window.pageYOffset;
         if (window.innerHeight > window.innerWidth) {
             this.background.texture = this.loader.resources.bgPortrait.texture as PIXI.Texture<PIXI.Resource>;
             this.bears.forEach((bear, idx) => {
@@ -109,6 +108,9 @@ export class MyApp extends PIXI.Application {
                 bear.y = window.innerHeight / 2 + idx;
             })
         }
+        this.container.x = window.innerWidth / 2;
+        this.container.y = window.innerHeight / 2
+        this.container.scale.set(this.isPortrait() ? 1 : 1.3);
     }
     createBears(resources: PIXI.utils.Dict<PIXI.LoaderResource>) {
         const bearSpritesheet = new PIXI.Spritesheet(resources.bear.texture as PIXI.Texture, jsonUrl);
@@ -144,7 +146,7 @@ export class MyApp extends PIXI.Application {
                 bear.x -= 0.5 * idx * delta;
             });
             if (this.background.filters) {
-                (this.background.filters[0] as GodrayFilter).time += 0.01 * delta;
+                //(this.background.filters[0] as GodrayFilter).time += 0.01 * delta;
             }
         })
     }
@@ -156,12 +158,14 @@ export class MyApp extends PIXI.Application {
         this.container.pivot.x = this.container.width / 2 + 20;
         this.container.pivot.y = this.container.height / 2;
 
-        this.container.scale.set(this.renderer.height > this.renderer.width ? 1 : 1.3);
+        this.container.scale.set(this.isPortrait() ? 1 : 1.3);
         this.container.sortableChildren = true;
         this.container.filters = [new PIXI.filters.BlurFilter(40, 20)]
 
         this.stage.addChild(this.container);
-        //this.addFruitsAnimation();
+    }
+    isPortrait(): boolean{
+        return window.innerHeight > window.innerWidth
     }
     addFruits() {
         const fruitsKeys = Object.keys(fruits);
@@ -229,19 +233,22 @@ export class MyApp extends PIXI.Application {
             const isPortrait = this.renderer.width < this.renderer.height;
 
             this.coins.forEach(coin => {
-                const x = isPortrait ? coin.x : -70;
+                const x = coin.x;
                 if (coin.x > x) {
-                    coin.x -= 0.2 * delta;
+                    coin.x -= 0.05 *  delta;
+                    //coin.x -= 0.1 * delta;
                 }
                 if (coin.y > -250) {
-                    coin.y -= 0.2 * delta
+                    coin.y -= 0.05 * delta
                 }
                 if (coin.x < x + 1 && coin.y < -249) {
                     coin.alpha = 0;
                     coin.scale.set(0);
                 }
-                if (coin.alpha < 1) {
-                    coin.alpha += 0.01 * delta;
+                if (coin.alpha >= 1 && coin.alpha > 0) {
+                    coin.alpha -= 0.01 * delta;
+                }else{
+                    coin.alpha = 1;
                 }
             })
         }
@@ -254,8 +261,10 @@ export class MyApp extends PIXI.Application {
             }
         }
         const stage2 = (fruit: MyModel, idx: number, delta: number) => {
-            if (fruit.y > fruit.containerHeight) {
-                fruit.y = -10;
+            const isLandscape = window.innerHeight > window.innerWidth;
+            const containerOffset = isLandscape ? 0 : 100;
+            if (fruit.y > fruit.containerHeight - containerOffset  && fruit.spins < 5) {
+                fruit.y = 0;
                 fruit.spins += 1;
                 if (filter >= 0) {
                     this.container.filters = [new PIXI.filters.BlurFilter(filter - fruit.spins * 4, 20)]
@@ -316,22 +325,15 @@ export class MyApp extends PIXI.Application {
     }
     startup() {
         this.clearScene();
-
         if (this.background) {
             this.stage.addChild(this.background);
         }
         this.drawBears();
         store.dispatch(setDoneFalse())
-
-
         this.drawContainer();
-
-
         this.fruits.forEach(fruit => {
-            fruit.containerHeight = this.container.height + 30;
+            fruit.containerHeight = this.container.height + 10;
         })
-
-
 
     }
 }

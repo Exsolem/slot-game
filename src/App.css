@@ -58,7 +58,7 @@ button[disabled]{
 
 .win{
   top: 5%;
-  right: 5%;
+  right: 2%;
   position: absolute;
   color: #3a3a3a;
   transform: scale(1);
@@ -66,7 +66,7 @@ button[disabled]{
 }
 .balance{
   top: 5%;
-  left: 5%;
+  left: 2%;
   color: #3a3a3a;
   transform: scale(1);
   transition: transform 500ms ease, color 500ms ease;
@@ -92,6 +92,10 @@ button[disabled]{
   top: 50%;
   right: 50%;
   transform: translate(50%, -50%);
+}
+.spinner{
+  width: 100%;
+  height: 100%;
 }
 
 @keyframes winanim {
