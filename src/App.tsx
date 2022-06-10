@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import './App.css';
 import { MyApp } from "./Pixi";
 import { getField } from "./store/slotSlice";
+import gearURL from "./assets/gear1.png"
 
 
 const app = new MyApp();
@@ -97,7 +98,7 @@ function App() {
         >
         {
           btnDis ? 
-          <span className='spinner'/> :
+          <img  className='spinner' src={gearURL} alt="gear"/> :
           'Spin'
         }
         </button>
