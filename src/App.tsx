@@ -5,43 +5,52 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import './App.css';
 import { MyApp } from "./Pixi";
-import { getField } from "./store/slotSlice";
+import { setField, getSpins, getWin, setBalance, setBet, makeBet, getLinesScore } from "./store/slotSlice";
 import gearURL from "./assets/gear1.png"
+import { RootState } from './store/store';
+import { useAppDispatch } from './hooks';
 
 
 const app = new MyApp();
 function App() {
 
-  const ref: MutableRefObject<HTMLDivElement | null> = useRef(null);
+  const canvasRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const winRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
-  const sumRef: MutableRefObject<HTMLDivElement | null> = useRef(null)
+  const sumRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
 
-  const isDone = useSelector((state: any) => state.slot.isDone);
-  const field = useSelector((state: any) => state.slot.field as { arr: number[], matches: number[][] });
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const [summa, setSumma] = useState(200);
-  const [win, setWin] = useState(0);
+  const isDone = useSelector(({ slot:{ isDone }}: RootState) => isDone);
+  const field = useSelector(({ slot:{ field }}: RootState) => field);
+  const freeSpins = useSelector(({ slot:{ freeSpins }}: RootState) => freeSpins);
+  const win = useSelector(({ slot:{ win }}: RootState)  => win);
+  const balance = useSelector(({ slot:{ balance }}: RootState) => balance);
+  const bet = useSelector(({ slot:{ bet }}: RootState) => bet);
+  const lineScore = useSelector(({ slot:{ lineScore }}: RootState) => lineScore);
+
+
   const [btnDis, setBtnDis] = useState(false)
 
   const spin = useCallback(() => {
-    dispatch(getField());
-    setWin(0);
+    dispatch(setField());
+    dispatch(getLinesScore());
+    //setWin(0);
     setBtnDis(true);
-    setSumma(prev => prev - 5)
+    dispatch(makeBet())
   }, [app]);
 
   useEffect(() => {
-    if (btnDis) {
-      app.setArr(field)
+    if (btnDis && field) {
+      app.setArr(field, lineScore)
       app.startup();
     }
-  }, [field])
+  }, [field, lineScore])
 
   useEffect(() => {
-    if (ref.current) {
-      app.setArr(field)
-      ref.current?.replaceChildren(app.view)
+    if (canvasRef.current) {
+      dispatch(setField());
+      dispatch(getLinesScore());
+      canvasRef.current?.replaceChildren(app.view);
       app.start();
     }
     window.addEventListener('resize', () => {
@@ -50,11 +59,9 @@ function App() {
     window.ondeviceorientation = () => {
       app.drawBackground();
     }
-
-  
   }, [])
   useEffect(() => {
-    setSumma(prev => prev += win);
+    //setSumma(prev => prev += win);
     if (win > 0) {
       winRef.current?.classList.add('winAnim');
       sumRef.current?.classList.add('balanceAnim')
@@ -67,34 +74,34 @@ function App() {
 
   }, [win])
 
-  useEffect(() => {
-  }, [summa])
 
   useEffect(() => {
     if (isDone) {
-      const newWin = field.matches.map(item => {
-        console.log(item)
-        const length = item.length;
-        return (field.arr[item[0]] + 1) * (length - 2) * length;
-      }).flat()
-        .reduce((acum, cur) => acum += cur, 0)
-
-      setWin(newWin);
+      dispatch(getWin());
+      dispatch(setBalance());
+      dispatch(getSpins());
       setBtnDis(false);
     }
-
   }, [isDone])
 
   return (
     <div className="App">
-      <div className={'slot-window'} ref={ref}></div>
+      <div className={'slot-window'} ref={canvasRef}></div>
       <div className={'buttons-container'}>
         <div className={'balance'} ref={sumRef}>
-          <span>Balance:${summa}</span>
+          <span>Balance:${balance}</span>
+        </div>
+        <div className={'bet-container'}>
+        { 
+          freeSpins ? 
+          <span>Free speens: {freeSpins}</span> : 
+          <button className={'bet-btn'} onClick={() => dispatch(setBet())}>Bet:{bet}</button>
+        }
         </div>
         <button 
           onClick={spin} 
           disabled={btnDis}
+          className={'spin-btn'}
         >
         {
           btnDis ? 
@@ -105,6 +112,7 @@ function App() {
         <div className={'win'} ref={winRef}>
           <span>Win:{win}</span>
         </div>
+        
       </div>
     </div>
   );

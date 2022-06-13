@@ -9,6 +9,10 @@ body{
   background-color: #4b9eca;
   
 }
+canvas{
+  width: 100%;
+  height: 100%;
+}
 .App {
   display: flex;
   flex-flow: column wrap;
@@ -22,13 +26,7 @@ body{
   position: absolute;
   z-index: -1;
 }
-
-
-canvas{
-  width: 100%;
-  height: 100%;
-}
-button{
+.spin-btn{
   width: 30vmin;
   height: 30vmin;
   border-radius: 50%;
@@ -37,20 +35,41 @@ button{
   color: white;
   background-color: #018d64;
   font-size: 10vmin;
-  transition: background-color 500ms ease;
   cursor: pointer;
   transition: background-color 500ms ease, transform 500ms ease;
 
 }
-button[disabled]{
+.spin-btn[disabled]{
   background-color: rgb(0, 204, 255);
   transform: scale(0.5);
   transition: background-color 500ms ease, transform 500ms ease;
 }
+.bet-container{
+  width: 20vmin;
+  height: 20vmin;
+  border-radius: 10%;
+  background-color: rgba(20, 18, 18, 0.562);
+  transition: color 500ms ease, background-color 500ms ease;
+  color: white;
+  margin-left: 2vw;
+}
+.bet-container:hover{
+  background-color: rgba(255, 255, 255, 0.555);
+  color: rgb(20, 18, 18);
+}
+.bet-btn{
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 6vmin;
+}
 .buttons-container{
   display: flex;
   flex-flow: row wrap;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   width: 100vw;
   padding-bottom: 2vh;
@@ -64,6 +83,7 @@ button[disabled]{
   position: absolute;
   color: #3a3a3a;
   transform: scale(1);
+  font-size: 7vmin;
   transition: transform 500ms ease, color 500ms ease;
 }
 .balance{
@@ -71,6 +91,7 @@ button[disabled]{
   left: 2%;
   color: #3a3a3a;
   transform: scale(1);
+  font-size: 7vmin;
   transition: transform 500ms ease, color 500ms ease;
   position: absolute;
 }
@@ -84,16 +105,6 @@ button[disabled]{
   transform: scale(1);
   transition: transform 500ms ease, color 500ms ease;
   animation: winanim 2s ease infinite;
-}
-.line{
-  position:absolute;
-  z-index: 1000;
-  background-color: black;
-  width: 300px;
-  height: 300px;
-  top: 50%;
-  right: 50%;
-  transform: translate(50%, -50%);
 }
 .spinner{
   width: 100%;
@@ -114,7 +125,7 @@ button[disabled]{
     transform: scale(1);
   }
   50%{
-    transform: scale(1.5);
+    transform: scale(1.2);
   }
 }
 

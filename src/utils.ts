@@ -1,4 +1,22 @@
-export const getArr = (count: number):{arr:number[], matches:number[][]}=> {
+export interface Fruits{
+    [fruit: string]: string
+}
+export interface Field{
+    arr:number[],
+    matches:number[][],
+}
+export interface SlotState{
+    balance: number,
+    isDone: boolean,
+    field: Field,
+    freeSpins: number,
+    win: number,
+    bet: number,
+    lineScore: number[]
+}
+
+
+export const getArr = (count: number): Field => {
     const arr = []
     for(let i = 0; i < count; i++){
         arr.push(Math.floor(Math.random() * 6))
@@ -22,7 +40,8 @@ export const getCombinations = (arr: number[]): number[][] => {
             !matches.includes(i - 1) && matches.push(i - 1);
             !matches.includes(i + 1) && matches.push(i + 1);
         }else if(matches.length > 2){
-            matchesArr.push(matches)
+            matchesArr.push(matches);
+            matches.sort();
             matches = [];
         } else{
             matches = [];
@@ -30,17 +49,28 @@ export const getCombinations = (arr: number[]): number[][] => {
     }
     return matchesArr
 }
-export function getWinScore(arr:number[][]):number{
-    console.log(arr);
-    return arr.map((item,idx) => {
+export function getWinScore(lineScore:number[]):number{
+    return lineScore
+        .reduce((acum, cur) => acum += cur, 0)
+}
+export function getLineScore(field: Field, bet: number): number[]{
+    return field.matches.map(item => {
         const length = item.length;
-        return item.reduce( acum =>  acum += length === 3 ? item[0] : length === 4 ? item[0] * 2 : length === 5 ? item[0] * 3 : 0, 0);
-    }).reduce( (acum, cur) => acum+=cur, 0)
+        return field.arr[item[0]] * (bet / 5) * (length - 2) * length;
+      }).flat()
+}
+export function getFreeSpins(field: Field):number{
+    const spins = field.matches
+        .filter(item => field.arr[item[0]]  === 0)
+        .map( item => {
+            const length = item.length;
+            return (length - 2) * length; 
+        })
+        .flat()
+        .reduce((acum, cur) => acum += cur, 0)
+    return spins;
 }
 
-export interface Fruits{
-    [fruit: string]: string
-}
 export const fruits: Fruits = {
     wild: 'wild',
     strawberry: 'strawberry',
