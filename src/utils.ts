@@ -1,3 +1,5 @@
+import { MyApp } from "./pixi/Pixi";
+
 export interface Fruits{
     [fruit: string]: string
 }
@@ -14,6 +16,9 @@ export interface SlotState{
     bet: number,
     lineScore: number[]
 }
+export interface SlotProps{
+    app: MyApp
+} 
 
 
 export const getArr = (count: number): Field => {
@@ -40,8 +45,8 @@ export const getCombinations = (arr: number[]): number[][] => {
             !matches.includes(i - 1) && matches.push(i - 1);
             !matches.includes(i + 1) && matches.push(i + 1);
         }else if(matches.length > 2){
-            matchesArr.push(matches);
             matches.sort();
+            matchesArr.push(matches);
             matches = [];
         } else{
             matches = [];

@@ -7,7 +7,7 @@ const initialState: SlotState = {
     field: getArr(25),
     freeSpins: 0,
     win: 0,
-    balance: 200,
+    balance: 1000,
     bet: 5,
     lineScore:[]
 }
