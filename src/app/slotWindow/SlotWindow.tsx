@@ -1,6 +1,6 @@
 import React, { MutableRefObject, useEffect, useRef } from 'react';
 
-import { setField, getLinesScore } from "../../store/slotSlice";
+import { getFieldAsync } from "../../store/slotSlice";
 import { useAppDispatch } from '../../hooks';
 import { SlotProps } from '../../utils';
 
@@ -12,8 +12,7 @@ export const SlotWindow: React.FC<SlotProps> = ({ app }) => {
     useEffect(() => {
         const thisCanvasRef = canvasRef
         if (thisCanvasRef.current) {
-            dispatch(setField());
-            dispatch(getLinesScore());
+            dispatch(getFieldAsync());
             canvasRef.current?.appendChild(app.view);
             app.start();
         }

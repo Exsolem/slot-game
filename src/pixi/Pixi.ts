@@ -10,8 +10,9 @@ import grapeUrl from '../assets/SYM7.png';
 import bearUrl from '../assets/spritesheet.png'
 import coinUrl from '../assets/coin.png'
 import bgPortraitUrl from '../assets/background-portrait.jpg'
+import leafUrl from '../assets/leave.png'
 
-import { setDoneFalse, setDoneTrue } from '../store/slotSlice'
+import { setDoneFalse, setDoneTrue, setIsPixiLoaded } from '../store/slotSlice'
 import { store } from "../store/store";
 
 
@@ -44,6 +45,7 @@ export class MyApp extends PIXI.Application {
     bearTexture: PIXI.Texture<PIXI.Resource>[];
     isBgAnimation: boolean;
     containerFilterStrength: number;
+    leaves: PIXI.Sprite[]
     constructor() {
         super({
             resizeTo: window,
@@ -56,6 +58,7 @@ export class MyApp extends PIXI.Application {
         this.isLoad = false;
         this.backgroundTime = 0;
         this.background = new PIXI.Sprite();
+        this.leaves = [];
         this.backgroundTexture = {
             portrait: {} as PIXI.Texture,
             landscape: {} as PIXI.Texture
@@ -82,6 +85,7 @@ export class MyApp extends PIXI.Application {
             .add('bgPortrait', bgPortraitUrl)
             .add('bear', bearUrl)
             .add('coin', coinUrl)
+            .add('leaf', leafUrl)
             .load((_, resources) => {
                 this.resources = resources;
                 this.onLoadHandler(resources);
@@ -101,9 +105,11 @@ export class MyApp extends PIXI.Application {
         this.drawBackground();
         this.createBears(resources)
         this.drawBears();
+        this.addLeaves();
 
         this.addBackgroundAnimation();
         this.addFruitsAnimation();
+        store.dispatch(setIsPixiLoaded())
 
         // let time = performance.now();
         // const animation = () => {
@@ -156,28 +162,66 @@ export class MyApp extends PIXI.Application {
             this.setContainerScale(0.2)
         }
     }
-    setContainerScale(scale: number): null {
+    setContainerScale(scale: number) {
         this.container.scale.set(scale);
         scale += 0.1;
 
+        const cWidth = this.container.width;
+        const cHeight = this.container.height;
+        const wHeight = window.innerHeight;
+        const wWidth = window.innerWidth;
+
         if (this.isPortrait()) {
-            if (this.container.width <= window.innerWidth - 30) {
+            if (cWidth <= wWidth - 30) {
                 this.setContainerScale(scale);
             }
         } else {
-            if (this.container.width <= window.innerWidth / 2) {
+            if (cWidth <= wWidth/ 2 && cHeight <= wHeight - 30) {
                 this.setContainerScale(scale);
             }
         }
-        return null;
+        return ;
+    }
+    addLeaves(){
+        if(this.leaves.length > 0){
+            this.leaves.forEach( leaf => {
+                this.stage.addChild(leaf);
+            })
+            return 
+        }
+        const leafTexture = this.resources.leaf.texture;
+        for(let i = 1; i < 20; i++){
+            const leaf = new PIXI.Sprite(leafTexture);
+            leaf.scale.set(0.002 * i);
+            leaf.anchor.set(0.5)
+            leaf.x = window.innerWidth * Math.random();
+            leaf.y = window.innerHeight * Math.random();
+            this.stage.addChild(leaf);
+            this.leaves.push(leaf);
+            const velocityX = Math.random();
+            const velocityY = Math.random()
+
+            this.ticker.add((delta)=>{
+                leaf.rotation += 0.01 * delta;
+                leaf.x -= 5 * velocityX *  delta;
+                leaf.y += 5 * velocityY *  delta;
+                if(leaf.x < -100){
+                    leaf.x = window.innerWidth  + 100;
+                }
+                if(leaf.y > window.innerHeight + 100){
+                    leaf.y = -100;
+                }
+            })
+        }
     }
     createBears(resources: PIXI.utils.Dict<PIXI.LoaderResource>) {
         if (this.bearTexture.length === 0) {
             const bearSpritesheet = new PIXI.Spritesheet(resources.bear.texture as PIXI.Texture, jsonUrl);
             bearSpritesheet.parse(() => { });
-            this.bearTexture = Object.keys(bearSpritesheet.textures).map(item => bearSpritesheet.textures[item])
+            this.bearTexture = Object
+                .keys(bearSpritesheet.textures)
+                .map(item => bearSpritesheet.textures[item])
         }
-
 
         for (let i = 0; i < 5; i++) {
             const bear = new PIXI.AnimatedSprite(this.bearTexture);
@@ -187,6 +231,9 @@ export class MyApp extends PIXI.Application {
             bear.scale.set(0.02 * i);
             bear.x = this.renderer.width * Math.random();
             bear.y = this.renderer.height / 2 + i;
+            bear.roundPixels = true;
+            bear.interactive = true;
+            bear.buttonMode = true;
 
             bear.play();
             this.bears.push(bear);
@@ -255,6 +302,7 @@ export class MyApp extends PIXI.Application {
             fruit.startX = fruit.x;
             fruit.startY = fruit.y;
             fruit.zIndex = 10;
+            fruit.roundPixels = true;
 
             this.container.addChild(fruit)
             this.fruits.push(fruit);
@@ -294,8 +342,8 @@ export class MyApp extends PIXI.Application {
 
     }
     addGround(x: number, y: number, width: number, height: number, fruitWidth: number) {
-        // const texture = this.resources.ground.texture;
-        // const ground = new PIXI.Sprite(texture);
+        // const texture = this.resources.vine.texture;
+        // const vine = new PIXI.Sprite(texture);
 
         const figure = new PIXI.Graphics()
         figure.beginFill(0x0f0317, 0.5);
@@ -303,7 +351,14 @@ export class MyApp extends PIXI.Application {
         figure.zIndex = 8;
         figure.pivot.y = height / 2;
         figure.alpha = 0;
-        this.container.addChild(figure)
+        // vine.x = x - fruitWidth / 2 + 5;
+        // vine.y = y;
+        // vine.width = width;
+        // vine.height = height;
+        // vine.pivot.y = height * 7;
+        // vine.zIndex = 14;
+
+        this.container.addChild(figure);
         this.ground.push(figure);
     }
     groundAnimation(delta: number) {
@@ -426,7 +481,7 @@ export class MyApp extends PIXI.Application {
             return
         }
         if(this.containerFilterStrength > 0){
-            this.containerFilterStrength -= 0.02;
+            this.containerFilterStrength -= 0.03;
             this.container.filters = [new PIXI.filters.BlurFilter(this.containerFilterStrength, 10)]
 
         }
@@ -434,38 +489,38 @@ export class MyApp extends PIXI.Application {
             fruit.y = 0;
             fruit.spins += 1;
         }
-        if (fruit.spins === 5) {
-            if (fruit.y >= fruit.startY) {
-                fruit.y = fruit.startY;
-                fruit.startSpeed = 0;
-                fruit.animationStage = 3;
-
-                if (idx === this.fruits.length - 1) {
-                    store.dispatch(setDoneTrue())
-                }
-            }
-        }
         fruit.y += fruit.startSpeed * delta
         if (fruit.startSpeed > 8) {
             fruit.startSpeed -= 0.2 * delta;
         }
+        if (fruit.spins < 5) {
+            return 
+        }
+        if (fruit.y >= fruit.startY) {
+            fruit.y = fruit.startY;
+            fruit.startSpeed = 0;
+            fruit.animationStage = 3;
+
+            if (idx === this.fruits.length - 1) {
+                store.dispatch(setDoneTrue())
+            }
+        }
+        
     }
     stage3(fruit: MyModel, idx: number, delta: number) {
         if (fruit.y === fruit.startY) {
             this.coinsAnimation(delta);
             this.textAnimation(delta);
             this.groundAnimation(delta);
-            if (this.matches.flat().includes(idx)) {
+            if (!this.matches.flat().includes(idx)) {
+                return 
+            }
+            if (!fruit.filters) {
                 const glow = new GlowFilter({ color: 0xfcc705 })
                 // @ts-ignore
                 fruit.filters = [glow]
-                if (fruit.filters !== null) {
-                    const glow = new GlowFilter({ color: 0xfcc705 })
-                    // @ts-ignore
-                    fruit.filters = [glow]
-                }
-                fruit.rotation += 0.01 * delta;
             }
+            fruit.rotation += 0.01 * delta;
         }
         else {
             fruit.filters = null;
@@ -482,6 +537,7 @@ export class MyApp extends PIXI.Application {
             this.stage.addChild(this.background);
         }
         this.drawBears();
+        this.addLeaves();
         store.dispatch(setDoneFalse())
         this.drawContainer();
         this.fruits.forEach(fruit => {

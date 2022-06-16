@@ -1,12 +1,19 @@
 import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import { setField, getSpins, getWin, setBalance, setBet, makeBet, getLinesScore } from "../../store/slotSlice";
+import { 
+    getSpins, 
+    getWin, 
+    setBalance, 
+    setBet, 
+    makeBet,
+    getFieldAsync
+ } from "../../store/slotSlice";
 import { RootState } from '../../store/store';
 import { useAppDispatch } from '../../hooks';
 import { SlotProps } from '../../utils';
 import gearURL from "../../assets/gear1.png";
-import { current } from '@reduxjs/toolkit';
+import loaderUrl from "../../assets/loader.gif"
 
 
 
@@ -24,12 +31,13 @@ export const UIOverlay: React.FC<SlotProps> = ({ app }) => {
     const balance = useSelector(({ slot: { balance } }: RootState) => balance);
     const bet = useSelector(({ slot: { bet } }: RootState) => bet);
     const lineScore = useSelector(({ slot: { lineScore } }: RootState) => lineScore);
+    const isPending = useSelector(({ slot: { isRequestPending } }: RootState) => isRequestPending);
+    const isLoaded = useSelector(({ slot: { isPixiLoaded } }: RootState) => isPixiLoaded);
 
     const [btnDis, setBtnDis] = useState(false)
 
     const spin = useCallback(() => {
-        dispatch(setField());
-        dispatch(getLinesScore());
+        dispatch(getFieldAsync());
         setBtnDis(true);
         dispatch(makeBet())
     }, [app]);
@@ -56,10 +64,8 @@ export const UIOverlay: React.FC<SlotProps> = ({ app }) => {
     useEffect(()=>{
         if(freeSpins > 0){
             betContainerRef.current?.classList.add('scaleAnimation')
-            console.log('added')
         }else{
             betContainerRef.current?.classList.remove('scaleAnimation');
-            console.log('removed')
         }
     },[freeSpins])
 
@@ -86,9 +92,9 @@ export const UIOverlay: React.FC<SlotProps> = ({ app }) => {
                 }
             </div>
             <button
-                onClick={spin}
-                disabled={btnDis}
-                className={'spin-btn'}
+                onClick={ spin }
+                disabled={ btnDis }
+                className={ 'spin-btn' }
             >
                 {
                     btnDis ?
@@ -99,6 +105,13 @@ export const UIOverlay: React.FC<SlotProps> = ({ app }) => {
             <div className={'win'} ref={winRef}>
                 <span>Win:{win}</span>
             </div>
+            {
+              (isPending || !isLoaded) && 
+                <div className='loader'>
+                    <img src={loaderUrl} alt="loader" />
+                 </div>
+            }
+            
         </div>
     )
 }

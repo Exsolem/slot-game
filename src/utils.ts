@@ -14,7 +14,9 @@ export interface SlotState{
     freeSpins: number,
     win: number,
     bet: number,
-    lineScore: number[]
+    lineScore: number[],
+    isRequestPending: boolean,
+    isPixiLoaded: boolean
 }
 export interface SlotProps{
     app: MyApp
