@@ -35,29 +35,6 @@ export const UIOverlay: React.FC<SlotProps> = ({ app }) => {
     const isLoaded = useSelector(({ slot: { isPixiLoaded } }: RootState) => isPixiLoaded);
 
     const [btnDis, setBtnDis] = useState(false);
-    const [gradualBalance, setGradualBalance] = useState(balance);
-    const [gradualWin, setGradualWin] = useState(win);
-
-    const smoothBalance = useCallback(()=>{
-        let addedCash = 0;
-        const interval = setInterval(()=>{
-            setGradualBalance(balance + addedCash)
-            if(addedCash === win){
-                clearInterval(interval)
-            }
-            addedCash+=1
-        }, 30)
-    },[bet, win, balance])
-    const smoothWin = useCallback(()=>{
-        let addedCash = 0;
-        const interval = setInterval(()=>{
-            setGradualWin(addedCash)
-            if(addedCash === win){
-                clearInterval(interval)
-            }
-            addedCash+=1
-        }, 30)
-    },[win])
     
 
     const spin = useCallback(() => {
@@ -76,12 +53,9 @@ export const UIOverlay: React.FC<SlotProps> = ({ app }) => {
         } else {
             winRef.current?.classList.remove('winAnim');
         }
-        smoothBalance();
-        smoothWin();
+        
     }, [win])
-    useEffect(()=>{
-        setGradualBalance(balance)
-    },[balance])
+
 
     useEffect(() => {
         if (btnDis && field) {
@@ -111,7 +85,7 @@ export const UIOverlay: React.FC<SlotProps> = ({ app }) => {
     return (
         <div className={'buttons-container'}>
             <div className={'balance'} ref={sumRef}>
-                <span>Balance:${gradualBalance}</span>
+                <span>Balance:${balance}</span>
             </div>
             <div className={'bet-container'} ref={betContainerRef}>
                 {
@@ -132,7 +106,7 @@ export const UIOverlay: React.FC<SlotProps> = ({ app }) => {
                 }
             </button>
             <div className={'win'} ref={winRef}>
-                <span>Win:{gradualWin}</span>
+                <span>Win:{win}</span>
             </div>
             {
               (isPending || !isLoaded) && 
