@@ -88,6 +88,7 @@ canvas{
   margin-right: 1vmin;
   transform: scale(1);
   transition: transform 500ms ease;
+  border-radius: 5vmin;
 }
 .buttons-container{
   display: flex;
@@ -103,19 +104,26 @@ canvas{
   top: 5%;
   right: 2%;
   position: absolute;
-  color: #3a3a3a;
+  color: #ffffff;
+  border-radius: 5vmin;
+  background-color: rgba(20, 18, 18, 0.562);
   transform: scale(1);
-  font-size: 7vmin;
+  font-size: 5vmin;
   transition: transform 500ms ease, color 500ms ease;
+  padding: 1vw 1vh;
 }
 .balance{
   top: 5%;
   left: 2%;
   color: #3a3a3a;
+  color: #ffffff;
+  border-radius: 5vmin;
+  background-color: rgba(20, 18, 18, 0.562);
   transform: scale(1);
-  font-size: 7vmin;
+  font-size: 5vmin;
   transition: transform 500ms ease, color 500ms ease;
   position: absolute;
+  padding: 1vh 1vw;
 }
 .balanceAnim{
   color: #ffe900;

@@ -159,12 +159,12 @@ export class MyApp extends PIXI.Application {
         this.container.x = window.innerWidth / 2;
         this.container.y = window.innerHeight / 2;
         if (this.fruits.length > 0) {
-            this.setContainerScale(0.2)
+            this.setContainerScale(0)
         }
     }
     setContainerScale(scale: number) {
         this.container.scale.set(scale);
-        scale += 0.1;
+        scale += 0.05;
 
         const cWidth = this.container.width;
         const cHeight = this.container.height;
@@ -176,7 +176,7 @@ export class MyApp extends PIXI.Application {
                 this.setContainerScale(scale);
             }
         } else {
-            if (cWidth <= wWidth/ 2 && cHeight <= wHeight - 30) {
+            if (cWidth <= wWidth / 2 && cHeight <= wHeight - 30) {
                 this.setContainerScale(scale);
             }
         }
@@ -532,13 +532,14 @@ export class MyApp extends PIXI.Application {
         this.lineScore = lineScore;
     }
     startup() {
+        store.dispatch(setDoneFalse())
         this.clearScene();
         if (this.background) {
             this.stage.addChild(this.background);
         }
         this.drawBears();
         this.addLeaves();
-        store.dispatch(setDoneFalse())
+        
         this.drawContainer();
         this.fruits.forEach(fruit => {
             fruit.containerHeight = this.isPortrait() ? fruit.height * 4.5 : fruit.height * 7;
