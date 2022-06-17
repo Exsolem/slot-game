@@ -79,6 +79,9 @@ export const UIOverlay: React.FC<SlotProps> = ({ app }) => {
         smoothBalance();
         smoothWin();
     }, [win])
+    useEffect(()=>{
+        setGradualBalance(balance)
+    },[balance])
 
     useEffect(() => {
         if (btnDis && field) {
